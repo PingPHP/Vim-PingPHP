@@ -9,4 +9,15 @@
 "
 "多行注释则向上去search对应的pattern然后再对应pattern行的上面一行去处理
 "
-    
+func ping#nextline_indent_r(thisline)
+    echo a:thisline
+    return 4
+endfunc
+
+func ping#nextline_indent()
+    let indent_num = ping#nextline_indent_r(line('.'))
+    call setline(a:thisline, 'test')
+    return indent_num
+endfunc
+
+"inoremap <CR> <C-O>:call ping#nextline_indent()<CR>
