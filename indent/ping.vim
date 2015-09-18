@@ -9,15 +9,27 @@
 "
 "多行注释则向上去search对应的pattern然后再对应pattern行的上面一行去处理
 "
-func ping#nextline_indent_r(thisline)
-    echo a:thisline
-    return 4
+
+func ping#nextline_indent(line_num)
+    let line_num = a:line_num
+    while line_num > 1 && len(getline(line_num)) == 0
+        let line_num -= 1
+    endwhile
+    return indent(line_num)
 endfunc
 
-func ping#nextline_indent()
-    let indent_num = ping#nextline_indent_r(line('.'))
-    call setline(a:thisline, 'test')
-    return indent_num
+func ping#set_nextline()
+    let line_num = line('.')
+    let indent_num = ping#nextline_indent(line_num)
+    let indent_str = ''
+    let indent_num_in = indent_num
+    while indent_num_in > 0
+        let indent_str .= ' '
+        let indent_num_in -= 1
+    endwhile
+    call append(line_num , indent_str)
+    call cursor(line_num+1, indent_num + 1)
 endfunc
 
-"inoremap <CR> <C-O>:call ping#nextline_indent()<CR>
+inoremap <CR> <Esc>:call ping#set_nextline()<CR>a
+nnoremap o :call ping#set_nextline()<CR>a
