@@ -4,7 +4,6 @@ Vim Plugin Of PingPHP
 ## Feature
 - syntax highlighting
 - indent
-- omnicomplete function
 
 ## Install
 
@@ -23,7 +22,7 @@ For Vundle:
 
 - [Mail 937141576@qq.com](mailto:937141576@qq.com)
 
-##License (MIT)
+##License
 
 Copyright (c) 2015 PingPHP
 

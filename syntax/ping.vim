@@ -1,13 +1,15 @@
-if version <= 508
-    command -nargs=+ HiLink hi link <args>
-else
-    command -nargs=+ HiLink hi def link <args>
+if exists("b:current_syntax")
+    finish
+endif
+
+if !exists("main_syntax")
+    let main_syntax = "ping"
 endif
 
 syn case match
  
-" Superblobals
-syn keyword pingSuperglobals $GLOBALS $_GET $_POST $_REQUEST $_FILES $_COOKIE $_SERVER $_SESSION $_ENV $HTTP_RAW_POST_DATA php_errormsg http_response_header argc argv
+" Superglobals
+syn keyword pingSuperglobals GLOBALS _GET _POST _REQUEST _FILES _COOKIE _SERVER _SESSION _ENV HTTP_RAW_POST_DATA php_errormsg http_response_header argc argv
 
 " Magic Constants
 syn keyword pingMagicConstants __LINE__ __FILE__ __DIR__ __FUNCTION__ __CLASS__ __METHOD__ __NAMESPACE__
@@ -78,7 +80,7 @@ syn keyword pingConstants LIBXML_VERSION LIBXML_DOTTED_VERSION LIBXML_LOADED_VER
 syn keyword pingConstants MB_OVERLOAD_MAIL MB_OVERLOAD_STRING MB_OVERLOAD_REGEX MB_CASE_UPPER MB_CASE_LOWER MB_CASE_TITLE
 
 " mcrypt
-syn keyword pingConstants  MCRYPT_ENCRYPT MCRYPT_DECRYPT MCRYPT_DEV_RANDOM MCRYPT_DEV_URANDOM MCRYPT_RAND MCRYPT_3DES MCRYPT_ARCFOUR_IV MCRYPT_ARCFOUR MCRYPT_BLOWFISH MCRYPT_BLOWFISH_COMPAT MCRYPT_CAST_128 MCRYPT_CAST_256 MCRYPT_CRYPT MCRYPT_DES MCRYPT_ENIGNA MCRYPT_GOST MCRYPT_LOKI97 MCRYPT_PANAMA MCRYPT_RC2 MCRYPT_RIJNDAEL_128 MCRYPT_RIJNDAEL_192 MCRYPT_RIJNDAEL_256 MCRYPT_SAFER64 MCRYPT_SAFER128 MCRYPT_SAFERPLUS MCRYPT_SERPENT MCRYPT_THREEWAY MCRYPT_TRIPLEDES MCRYPT_TWOFISH MCRYPT_WAKE MCRYPT_XTEA MCRYPT_IDEA MCRYPT_MARS MCRYPT_RC6 MCRYPT_SKIPJACK MCRYPT_MODE_CBC MCRYPT_MODE_CFB MCRYPT_MODE_ECB MCRYPT_MODE_NOFB MCRYPT_MODE_OFB MCRYPT_MODE_STREAM
+syn keyword pingConstants MCRYPT_ENCRYPT MCRYPT_DECRYPT MCRYPT_DEV_RANDOM MCRYPT_DEV_URANDOM MCRYPT_RAND MCRYPT_3DES MCRYPT_ARCFOUR_IV MCRYPT_ARCFOUR MCRYPT_BLOWFISH MCRYPT_BLOWFISH_COMPAT MCRYPT_CAST_128 MCRYPT_CAST_256 MCRYPT_CRYPT MCRYPT_DES MCRYPT_ENIGNA MCRYPT_GOST MCRYPT_LOKI97 MCRYPT_PANAMA MCRYPT_RC2 MCRYPT_RIJNDAEL_128 MCRYPT_RIJNDAEL_192 MCRYPT_RIJNDAEL_256 MCRYPT_SAFER64 MCRYPT_SAFER128 MCRYPT_SAFERPLUS MCRYPT_SERPENT MCRYPT_THREEWAY MCRYPT_TRIPLEDES MCRYPT_TWOFISH MCRYPT_WAKE MCRYPT_XTEA MCRYPT_IDEA MCRYPT_MARS MCRYPT_RC6 MCRYPT_SKIPJACK MCRYPT_MODE_CBC MCRYPT_MODE_CFB MCRYPT_MODE_ECB MCRYPT_MODE_NOFB MCRYPT_MODE_OFB MCRYPT_MODE_STREAM
 
 " mysql
 syn keyword pingConstants MYSQL_ASSOC MYSQL_NUM MYSQL_BOTH MYSQL_CLIENT_COMPRESS MYSQL_CLIENT_SSL MYSQL_CLIENT_INTERACTIVE MYSQL_CLIENT_IGNORE_SPACE
@@ -145,8 +147,6 @@ syn keyword pingConstants CREATE EXCL CHECKCONS OVERWRITE FL_NOCASE FL_NODIR FL_
 
 " zlib
 syn keyword pingConstants FORCE_GZIP FORCE_DEFLATE
-
-syn case ignore
 
 " Core
 syn keyword pingFunctions zend_version func_num_args func_get_arg func_get_args strlen strcmp strncmp strcasecmp strncasecmp each error_reporting define defined get_class get_called_class get_parent_class method_exists property_exists class_exists interface_exists function_exists class_alias get_included_files get_required_files is_subclass_of is_a get_class_vars get_object_vars get_class_methods trigger_error user_error set_error_handler restore_error_handler set_exception_handler restore_exception_handler get_declared_classes get_declared_interfaces get_defined_functions get_defined_vars create_function get_resource_type get_loaded_extensions extension_loaded get_extension_funcs get_defined_constants debug_backtrace debug_print_backtrace gc_collect_cycles gc_enabled gc_enable gc_disable
@@ -338,44 +338,64 @@ syn keyword pingFunctions readgzfile gzrewind gzclose gzeof gzgetc gzgets gzgets
 
 " === END BUILTIN FUNCTIONS, CLASSES, AND CONSTANTS =====================================
 
-" The following is needed afterall it seems.
-syntax keyword pingClasses ALLBUT,pingComment,pingStringDouble,pingStringSingle,pingIdentifier,pingMethodsVar
-
 " Control Structures
-syn keyword pingStatement if else elseif while do for foreach break switch case default continue return goto as endif endwhile endfor endforeach endswitch declare endeclare
+syn keyword pingStatement if else elif while do for in break switch case default continue return as declare yield pass
 
 " Class Keywords
-syn keyword pingType class abstract extends interface implements static final var public private protected const
+syn keyword pingType class trait abstract extends interface implements static final public private protected const
 
 " Magic Methods
 syn keyword pingStatement __construct __destruct __call __callStatic __get __set __isset __unset __sleep __wakeup __toString __invoke __set_state __clone
 
 " Exception Keywords
-syn keyword pingStatement try catch throw
+syn keyword pingStatement try catch throw finally
 
 " Language Constructs
 syn keyword pingStatement die exit eval empty isset unset list instanceof
 
 " These special keywords have traditionally received special colors
-syn keyword pingSpecial function echo print new clone
+syn keyword pingSpecial def lambda echo print new clone
 
 " Include & friends
 syn keyword pingInclude include include_once require require_once namespace use
 
 " Types
-syn keyword pingType bool[ean] int[eger] real double float string array object null self parent global this stdClass
+syn keyword pingType bool int double float string array object binary null self parent global this stdClass
 
+" Operator
+syn match pingOperator       "[-=+%^&|*/~<>!$:]" display
+syn match pingOperator       "\<and\>\|\<or\>\|\<not\>" display
+syn match pingSpecialChar    "[\[\]\(\)\\]" display
+
+" Boolean
+syn keyword pingBoolean true false 
+
+" Number
+syn match pingNumber "-\=\<\d\+\>" display
+syn match pingNumber "\<0x\x\{1,8}\>"  display
+
+" Float
+syn match pingFloat  "\(-\=\<\d+\|-\=\)\.\d\+\>" display
+
+" Todo
+syn case ignore
+syn keyword pingTodo todo fixme xxx note contained
+syn case match
 
 " Comment
-syn region pingComment start="'''" end="'''" contains=phpTodo extend
-syn region pingComment start="\"\"\"" end="\"\"\"" contains=phpTodo extend
-if version >= 600
-  syn match pingComment  "#.\{-}\(?>\|$\)\@=" contains=phpTodo
-else
-  syn match pingComment  "#.\{-}$" contains=phpTodo
-  syn match pingComment  "#.\{-}?>"me=e-2 contains=phpTodo
-endif
+syn match pingComment "'''[\s\S]*'''" contains=pingTodo extend
+syn match pingComment "\"\"\"[\s\S]*\"\"\"" contains=pingTodo extend
+syn region pingComment start="#" end="$" contains=pingTodo extend
+syn include @PHP syntax/php.vim
+unlet b:current_syntax
+syn region pingPHP start="<?php" end="?>" contains=@PHP extend
 
+" String
+syn region pingString start="\"" skip="\\\"" end="\"" 
+syn region pingString start="'" skip="\\'" end="'" 
+syn region pingBacktick start="`" skip="\\`" end="`"
+
+command -nargs=+ HiLink hi def link <args>
 HiLink pingComment          Comment
 HiLink pingSuperglobals     Constant
 HiLink pingMagicConstants   Constant
@@ -383,32 +403,25 @@ HiLink pingServerVars       Constant
 HiLink pingConstants        Constant
 HiLink pingBoolean          Constant
 HiLink pingNumber           Constant
-HiLink pingStringSingle     String
-HiLink pingStringDouble     String
+HiLink pingFloat            Constant
+HiLink pingString           String
 HiLink pingBacktick         String
-HiLink pingHereDoc          String
-HiLink pingNowDoc           String
 HiLink pingFunctions        Identifier
 HiLink pingClasses          Identifier
 HiLink pingMethods          Identifier
-HiLink pingIdentifier       Identifier
-HiLink pingIdentifierSimply Identifier
 HiLink pingStatement        Statement
 HiLink pingStructure        Statement
-HiLink pingException        Statement
 HiLink pingOperator         Operator
-HiLink pingVarSelector      Operator
 HiLink pingInclude          PreProc
 HiLink pingDefine           PreProc
 HiLink pingSpecial          PreProc
-HiLink pingFCKeyword        PreProc
 HiLink pingType             Type
-HiLink pingSCKeyword        Type
-HiLink pingMemberSelector   Type
 HiLink pingSpecialChar      Special
-HiLink pingStrEsc           Special
-HiLink pingParent           Special
-HiLink pingParentError      Error
-HiLink pingOctalError       Error
 HiLink pingTodo             Todo
+delcommand HiLink
 
+let b:current_syntax = "ping"
+
+if main_syntax == "ping"
+    unlet main_syntax
+endif
